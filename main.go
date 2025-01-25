@@ -9,13 +9,15 @@ import (
 	"os/signal"
 	"slices"
 	"time"
+
+	"github.com/fatih/color"
 )
 
 type diffResult string
 
 var (
 	executable  = flag.String("x", "./bin/sol1", "path to executable")
-	testsDir    = flag.String("i", "./tests", "path to tests directory")
+	testsDir    = flag.String("i", "./tests/prob1", "path to tests directory")
 	concurrency = flag.Int("n", 1, "concurrency")
 	verbose     = flag.Bool("v", false, "verbose")
 	normalizeWS = flag.Bool("w", false, "normalize whitespace")
@@ -24,6 +26,7 @@ var (
 )
 
 func main() {
+	flag.BoolVar(&color.NoColor, "nc", false, "disable colored output")
 	flag.Parse()
 
 	cases, err := findCases()
@@ -52,9 +55,9 @@ func main() {
 		m[r.res]++
 	}
 
+	fmt.Printf("\n[%d/%d]", m[resultOK], len(cases))
+	for _, r := range []result{resultOK, resultWA, resultTL, resultCC, resultErr} {
+		fmt.Printf(" %v %d", r, m[r])
+	}
 	fmt.Println()
-	fmt.Printf("[%d/%d] OK %d WA %d TL %d CC %d ERR %d\n",
-		m[resultOK], len(cases), m[resultOK], m[resultWA],
-		m[resultTL], m[resultCC], m[resultErr],
-	)
 }

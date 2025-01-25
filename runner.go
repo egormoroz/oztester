@@ -9,33 +9,38 @@ import (
 	"os/exec"
 	"strings"
 	"sync"
+
+	"github.com/fatih/color"
 )
 
 type result int
 
 const (
-	resultOK result = iota
-	resultWA        // wrong answer
-	resultTL        // time limit
-	resultCC        // context cancelled
-	resultErr
+	resultOK  result = iota
+	resultWA         // wrong answer
+	resultTL         // time limit
+	resultCC         // context cancelled
+	resultErr        // runtime error
 )
 
+type resFmt struct {
+	name  string
+	color color.Attribute
+}
+
+var result2Fmt = map[result]resFmt{
+	resultOK:  {"OK", color.FgGreen},
+	resultWA:  {"WA", color.FgYellow},
+	resultTL:  {"TL", color.FgMagenta},
+	resultCC:  {"CC", color.FgCyan},
+	resultErr: {"ERR", color.FgRed},
+}
+
 func (r result) String() string {
-	switch r {
-	case resultCC:
-		return "CC"
-	case resultErr:
-		return "ERR"
-	case resultOK:
-		return "OK"
-	case resultTL:
-		return "TL"
-	case resultWA:
-		return "WA"
-	default:
-		panic(fmt.Sprintf("unexpected main.result: %#v", r))
+	if f, ok := result2Fmt[r]; ok {
+		return color.New(f.color).Sprint(f.name)
 	}
+	return "UNK"
 }
 
 type caseReport struct {
