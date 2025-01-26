@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"context"
 	"errors"
@@ -131,12 +132,28 @@ func runCase(ctx context.Context, testCase string) (result, error) {
 	if *normalizeWS {
 		ans = bytes.TrimSpace(bytes.ReplaceAll(ans, []byte("\r\n"), []byte("\n")))
 		out = bytes.TrimSpace(bytes.ReplaceAll(out, []byte("\r\n"), []byte("\n")))
+		ans = removeBlankLines(ans)
+		out = removeBlankLines(out)
 	}
 
 	if bytes.Equal(out, ans) {
 		return resultOK, nil
 	}
 	return resultWA, nil
+}
+
+// Helper function to remove blank lines
+func removeBlankLines(b []byte) []byte {
+	buf := bytes.NewBuffer(nil)
+	scanner := bufio.NewScanner(bytes.NewReader(b))
+	for scanner.Scan() {
+		line := bytes.TrimSpace(scanner.Bytes())
+		if len(line) > 0 {
+			buf.Write(line)
+			buf.WriteByte('\n')
+		}
+	}
+	return bytes.TrimSpace(buf.Bytes())
 }
 
 func readCase(casePath string) (inp []byte, out []byte, err error) {
